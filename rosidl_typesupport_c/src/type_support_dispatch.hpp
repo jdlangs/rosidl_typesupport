@@ -64,28 +64,41 @@ get_typesupport_handle_function(
           library_path = rcpputils::find_library_path(library_name);
         } catch (const std::exception & e) {
           RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-            "Failed to find library '%s' due to %s\n",
+            "Failed to find C typesupport library '%s' due to %s\n",
             library_name, e.what());
           return nullptr;
         }
 
         if (library_path.empty()) {
           RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-            "Failed to find library '%s'\n", library_name);
-          return nullptr;
+            "Failed to find C typesupport library '%s'\n", library_name);
+          //return nullptr;
         }
 
+        /*
         try {
           lib = new rcpputils::SharedLibrary(library_path.c_str());
         } catch (const std::runtime_error & e) {
           RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-            "Could not load library %s: %s\n", library_path.c_str(), e.what());
+            "Could not load C typesupport library %s: %s\n", library_path.c_str(), e.what());
           return nullptr;
         } catch (const std::bad_alloc & e) {
           RCUTILS_SET_ERROR_MSG_WITH_FORMAT_STRING(
-            "Could not load library %s: %s\n", library_path.c_str(), e.what());
+            "Could not load C typesupport library %s: %s\n", library_path.c_str(), e.what());
           return nullptr;
         }
+        */
+        // Attempt to load from name only
+        try {
+          lib = new rcpputils::SharedLibrary(library_name);
+        } catch (const std::runtime_error &e) {
+          throw std::runtime_error("Could not load C typesupport library " + std::string(library_name) +
+                                   ": " + std::string(e.what()));
+        } catch (const std::bad_alloc &e) {
+          throw std::runtime_error("Could not load C typesupport library " + std::string(library_name) +
+                                   ": " + std::string(e.what()));
+        }
+
         map->data[i] = lib;
       }
       auto clib = static_cast<const rcpputils::SharedLibrary *>(map->data[i]);

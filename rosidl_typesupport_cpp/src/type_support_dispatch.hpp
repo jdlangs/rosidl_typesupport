@@ -66,9 +66,10 @@ get_typesupport_handle_function(
 
         if (library_path.empty()) {
           fprintf(stderr, "Failed to find library '%s'\n", library_name.c_str());
-          return nullptr;
+          //return nullptr;
         }
 
+        /*
         try {
           lib = new rcpputils::SharedLibrary(library_path.c_str());
         } catch (const std::runtime_error & e) {
@@ -78,6 +79,19 @@ get_typesupport_handle_function(
         } catch (const std::bad_alloc & e) {
           throw std::runtime_error(
                   "Could not load library " + library_path + ": " +
+                  std::string(e.what()));
+        }
+        */
+        // Attempt to load from name only
+        try {
+          lib = new rcpputils::SharedLibrary(library_name.c_str());
+        } catch (const std::runtime_error & e) {
+          throw std::runtime_error(
+                  "Could not load library " + library_name + ": " +
+                  std::string(e.what()));
+        } catch (const std::bad_alloc & e) {
+          throw std::runtime_error(
+                  "Could not load library " + library_name + ": " +
                   std::string(e.what()));
         }
         map->data[i] = lib;
